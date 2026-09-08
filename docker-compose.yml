@@ -1,0 +1,62 @@
+name: project_b
+
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: myjobportaldb
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+    ports:
+      - "5433:5432"  # Changed from 5432
+    volumes:
+      - postgres_data_b:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dev -d myjobportaldb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"  # Changed from 6379
+    volumes:
+      - redis_data_b:/data
+
+  seq:
+    image: datalust/seq:latest
+    ports:
+      - "5342:80"    # Changed from 5341
+    environment:
+      ACCEPT_EULA: Y
+      SEQ_FIRSTRUN_ADMINPASSWORD: Admin@12345
+    volumes:
+      - seq_data_b:/data
+
+  myjobportalnotification:
+    image: rnwood/smtp4dev:prerelease
+    ports:
+      - "2526:25"    # Changed from 2525
+      - "3001:80"    # Changed from 3000
+    volumes:
+      - smtp4dev-data_b:/smtp4dev
+      
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "YourStrong@Pass123"
+    ports:
+      - "1434:1433"  # Changed from 1433
+    volumes:
+      - sqlserver-data_b:/var/opt/mssql
+
+volumes:
+  postgres_data_b:
+  redis_data_b:
+  seq_data_b:
+  smtp4dev-data_b:
+  sqlserver-data_b:
