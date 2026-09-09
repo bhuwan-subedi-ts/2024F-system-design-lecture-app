@@ -6,12 +6,15 @@ public class UserService : IUserService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<UserService> _logger;
     private readonly IRedisCacheService _cacheService;
+    private readonly IEmailService _emailService;
     public UserService(UserManager<ApplicationUser> userManager,
-     ILogger<UserService> logger, IRedisCacheService cacheService)
+     ILogger<UserService> logger, IRedisCacheService cacheService,
+     IEmailService emailService)
     {
         _userManager = userManager;
         _logger = logger;
         _cacheService = cacheService;
+        _emailService = emailService;
     }
     public async Task<string> CreateUserAsync(UserCreateRequestDto request)
     {
@@ -55,7 +58,7 @@ public class UserService : IUserService
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         var body = $"Hello {request.FullName} ,<br><br>" +
                     $"Please use this token: {token} to confirm your email. UserId: {user.Id}";
-
+        await _emailService.SendEmailAsync(request.Email,"Confirm Your Email",body);
         _logger.LogInformation("User registered for {Email}, with ID {Id} and role {Role}",
         user.Email, user.Id, user.Role);
         return "Registration Successfull. Please check your email to verify.";

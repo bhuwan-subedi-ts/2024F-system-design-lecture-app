@@ -23,13 +23,16 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddStackExchangeRedisCache(options => {
+builder.Services.AddStackExchangeRedisCache(options =>
+{
     options.Configuration = builder.Configuration.GetConnectionString("Redis");
     options.InstanceName = "MyJobPortal_";
 });
 
-builder.Services.AddScoped<IRedisCacheService,RedisCacheService>();
+builder.Services.Configure<EmailSettingDto>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddScoped<IRedisCacheService, RedisCacheService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
